@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PTWebParser"
         mc:Ignorable="d"
-        Title="WebParser" Height="700" Width="1200">
+        Title="WebParser" Height="800" Width="1300">
     <Grid>
         <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
@@ -29,7 +29,8 @@
                 </Style>
             </DataGrid.CellStyle>
         </DataGrid>
-
-        <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="LightGray" Click="StartParsingBtn_Click" Margin="300,333,300,51"/>
+        <TextBox x:Name="FileBrowser" Height="40" Width="600" Margin="200,400,500,52" BorderBrush="Black" Background="LightGray"/>
+        <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="#FFBCFFCC" Click="StartParsingBtn_Click" Margin="500,582,500,52"/>
+        <Button x:Name="FileBrowserBtn" Content="Browse" TextBlock.FontSize="20" Height="40" Background="LightGray" Click="FileBrowserBtn_Click" Margin="862,546,206,198"/>
     </Grid>
 </Window>
