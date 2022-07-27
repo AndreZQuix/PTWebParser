@@ -17,19 +17,19 @@ using OpenQA.Selenium;
 
 namespace PTWebParser
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+
+            IWebParser parser = new WebParser();
+            parser.InitializeProperties();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Кнопка нажата");
+            
 
             IWebDriver driver = new EdgeDriver();
             driver.Navigate().GoToUrl("https://prodteh.ru/");
