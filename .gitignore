@@ -1,3 +1,7 @@
+/Docs/*.csv
+/Docs/*.txt
+/Docs/*.ini
+
 # User-specific files
 *.rsuser
 *.suo

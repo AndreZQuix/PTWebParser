@@ -11,5 +11,7 @@ namespace PTWebParser
         public static string DocFolderPath = "../../../../Docs/";
 
         public void InitializeProperties();
+        public bool IsFileCorrect();
+        public void StartParsing();
     }
 }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium;
 
 namespace PTWebParser
 {
@@ -52,6 +54,25 @@ namespace PTWebParser
             }
             catch(Exception ex)
                 { MessageBox.Show("Невозможно открыть config.ini: " + ex.Message);   }
+        }
+
+        public bool IsFileCorrect()
+        {
+            return !string.IsNullOrEmpty(TextToReplace) && !string.IsNullOrEmpty(ParsedLink) && !string.IsNullOrEmpty(ParsedFile)
+                && !string.IsNullOrEmpty(SelectorTitle) && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
+        }
+
+        public void StartParsing()
+        {
+            if(IsFileCorrect())
+            {
+                IWebDriver driver = new EdgeDriver();
+                driver.Navigate().GoToUrl("https://prodteh.ru/");
+            }
+            else
+            {
+                MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini");
+            }
         }
     }
 }
