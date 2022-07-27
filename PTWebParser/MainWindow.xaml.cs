@@ -10,6 +10,8 @@ namespace PTWebParser
     public partial class MainWindow : Window
     {
         private IWebParser parser;
+        private List<IProduct> products = new List<IProduct>();
+
         public MainWindow()
         {
             InitializeComponent();

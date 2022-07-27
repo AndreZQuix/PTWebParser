@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,10 @@ namespace PTWebParser
 
         public void InitializeProperties();
         public bool IsFileCorrect();
-        public void StartParsing();
+        public Task<List<IProduct>> StartParsing();
+        public void GetObjectProperties(ref StreamReader sr, ref IProduct pr);
+
+        public void UpdateCounter();
+
     }
 }

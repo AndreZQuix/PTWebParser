@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium;
+using System.Threading.Tasks;
 
 namespace PTWebParser
 {
@@ -62,9 +63,37 @@ namespace PTWebParser
                 && !string.IsNullOrEmpty(SelectorTitle) && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
-        public void StartParsing()
+        public void GetObjectProperties(ref StreamReader sr, ref IProduct pr)
         {
-            if(IsFileCorrect())
+            string line;
+            while(!string.IsNullOrWhiteSpace(line = sr.ReadLine()))
+            {
+                if (line.Contains("Name:"))
+                    pr.Name = line.Replace("Name:", "");
+
+                if (line.Contains("CompID:"))
+                    pr.CompCode = line.Replace("CompID:", "");
+
+                if (line.Contains("Price:"))
+                    pr.Price = Convert.ToDouble(line.Replace("Price:", ""));
+
+                if (line.Contains("VendorCode:"))
+                    pr.VendorCode = line.Replace("VendorCode:", "");
+            }
+        }
+
+        public void UpdateCounter()
+        {
+            string file = DocFolderPath + "config.ini";
+            string text = File.ReadAllText(file);
+            text = text.Replace(TextToReplace, "Count:" + Count);
+            File.WriteAllText(file, text);
+        }
+
+        public async Task<List<IProduct>> StartParsing()
+        {
+            Task<List<IProduct>> list = Task.FromResult(new List<IProduct>());
+            if (IsFileCorrect())
             {
                 IWebDriver driver = new EdgeDriver();
                 StreamReader sr = new StreamReader(DocFolderPath + ParsedFile);
@@ -73,13 +102,24 @@ namespace PTWebParser
                 while(sr.Peek() != -1 && Count < endID)
                 {
                     IProduct product = new Product();
+                    GetObjectProperties(ref sr, ref product);
 
+                    Random rnd = new Random();
+                    driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
+                    await Task.Delay(rnd.Next(2000, 5000)); // set random delay to avoid ban and jeopardy of possible DDOS
+                    //Try to parse
+                    await Task.Delay(rnd.Next(3000, 8000));
+                    Count++;
                 }
+                driver.Quit();
+                UpdateCounter();
             }
             else
             {
                 MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini");
             }
+
+            return await list;
         }
 
         private void SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)

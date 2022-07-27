@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PTWebParser
 {
-    interface IProduct
+    public interface IProduct
     {
         string Name { get; set; }
         double Price { get; set; }

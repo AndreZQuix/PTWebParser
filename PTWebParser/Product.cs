@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PTWebParser
 {
-    class Product : IProduct
+    public class Product : IProduct
     {
         public string Name { get; set; }
         public double Price { get; set; }
