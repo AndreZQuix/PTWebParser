@@ -67,12 +67,35 @@ namespace PTWebParser
             if(IsFileCorrect())
             {
                 IWebDriver driver = new EdgeDriver();
-                driver.Navigate().GoToUrl("https://prodteh.ru/");
+                StreamReader sr = new StreamReader(DocFolderPath + ParsedFile);
+                int endID = Count + AmountOfFiles; // calculate the end of parsing iteration
+                SetFileStartPosition(ref sr);
+                while(sr.Peek() != -1 && Count < endID)
+                {
+                    
+                }
             }
             else
             {
                 MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini");
             }
+        }
+
+        private void SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)
+        {
+            string lineID = "ID:" + Convert.ToString(Count);
+            string line;
+            try
+            {
+                while (sr.Peek() != -1)
+                {
+                    line = sr.ReadLine();
+                    if (line.Equals(lineID))
+                        return;
+                }
+            }
+            catch (Exception ex)
+            { MessageBox.Show("Не удалось найти начало файла для текущей итерации: " + ex.Message); }
         }
     }
 }
