@@ -5,8 +5,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PTWebParser"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="WebParser" Height="700" Width="1200">
     <Grid>
-        <Button x:Name="button1" Width="60" Height="30" Content="Нажать" Click="Button_Click" />
+        <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Товар" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Их название" Binding="{Binding OthName}"/>
+                <DataGridTextColumn Header="Наша цена" Binding="{Binding Price}"/>
+                <DataGridTextColumn Header="Их цена" Binding="{Binding OthPrice}"/>
+                <DataGridTextColumn Header="Разница" Binding="{Binding PriceDiff}"/>
+            </DataGrid.Columns>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPriceLess}" Value="True">
+                            <Setter Property="Background" Value="#AFE1AF"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding IsPriceLess}" Value="False">
+                            <Setter Property="Background" Value="#FAA0A0"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+
+        <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="LightGray" Click="StartParsingBtn_Click" Margin="300,333,300,51"/>
     </Grid>
 </Window>

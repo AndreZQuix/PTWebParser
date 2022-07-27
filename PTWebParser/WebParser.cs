@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
-using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System.Threading.Tasks;
 
@@ -10,6 +10,8 @@ namespace PTWebParser
 {
     public class WebParser : IWebParser
     {
+        List<IProduct> products = new List<IProduct>();
+
         public string DocFolderPath = "../../../../Docs/";
         public static int AmountOfFiles = 10; // amount of files to parse at one iteration
         public static int Count = 0;
@@ -90,12 +92,40 @@ namespace PTWebParser
             File.WriteAllText(file, text);
         }
 
+        public void TryToParse(ref IWebDriver driver, ref IProduct pr)
+        {
+            var selector = driver.FindElements(By.ClassName(SelectorTitle)); // try to find the specific product tag (tag that contains product name)
+            if(selector.Count != 0) // if this tag exists, then possibly the right product we are looking for exists
+            {
+                selector[0].Click(); // click it to open the product page
+                try
+                {
+                    pr.OthName = driver.FindElement(By.CssSelector(SelectorName)).GetAttribute(AttributeName); // get the product name
+                    pr.OthName = pr.OthName.Trim();
+                }
+                catch (Exception ex)
+                { MessageBox.Show("Ошибка парсинга названия " + pr.VendorCode + ": " + ex.Message); }
+
+                try
+                {
+                    string price = driver.FindElement(By.CssSelector(SelectorPrice)).GetAttribute(AttributeName); // get the price
+                    pr.OthPrice = Convert.ToDouble(price.Remove(price.Length - 1).Replace(" ", ""));
+                    pr.PriceDiff = pr.Price - pr.OthPrice;
+                    if (pr.PriceDiff <= 0) // light red if the other price is less than company price
+                        pr.IsPriceLess = true;
+                }
+                catch(Exception ex)
+                { MessageBox.Show("Ошибка парсинга стоимости " + pr.Name + ": " + ex.Message); }
+
+                products.Add(pr);
+            }
+        }
+
         public async Task<List<IProduct>> StartParsing()
         {
-            Task<List<IProduct>> list = Task.FromResult(new List<IProduct>());
             if (IsFileCorrect())
             {
-                IWebDriver driver = new EdgeDriver();
+                IWebDriver driver = new ChromeDriver();
                 StreamReader sr = new StreamReader(DocFolderPath + ParsedFile);
                 int endID = Count + AmountOfFiles; // calculate the end of parsing iteration
                 SetFileStartPosition(ref sr);
@@ -106,9 +136,9 @@ namespace PTWebParser
 
                     Random rnd = new Random();
                     driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    await Task.Delay(rnd.Next(2000, 5000)); // set random delay to avoid ban and jeopardy of possible DDOS
-                    //Try to parse
-                    await Task.Delay(rnd.Next(3000, 8000));
+                    //await Task.Delay(rnd.Next(2000, 5000)); // set random delay to avoid ban and jeopardy of possible DDOS
+                    TryToParse(ref driver, ref product);
+                    //await Task.Delay(rnd.Next(3000, 8000));
                     Count++;
                 }
                 driver.Quit();
@@ -119,7 +149,7 @@ namespace PTWebParser
                 MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini");
             }
 
-            return await list;
+            return products;
         }
 
         private void SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)

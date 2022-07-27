@@ -15,6 +15,6 @@ namespace PTWebParser
         string OthName { get; set; }
         double OthPrice { get; set; }
         double PriceDiff { get; set; }
-        bool IsPriceLess { get; }
+        bool IsPriceLess { get; set; }
     }
 }

@@ -1,8 +1,6 @@
-﻿using System;
+﻿using OpenQA.Selenium;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PTWebParser
@@ -15,8 +13,8 @@ namespace PTWebParser
         public bool IsFileCorrect();
         public Task<List<IProduct>> StartParsing();
         public void GetObjectProperties(ref StreamReader sr, ref IProduct pr);
-
         public void UpdateCounter();
+        public void TryToParse(ref IWebDriver driver, ref IProduct pr);
 
     }
 }

@@ -10,7 +10,6 @@ namespace PTWebParser
     public partial class MainWindow : Window
     {
         private IWebParser parser;
-        private List<IProduct> products = new List<IProduct>();
 
         public MainWindow()
         {
@@ -20,9 +19,9 @@ namespace PTWebParser
             parser.InitializeProperties();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
         {
-            parser.StartParsing();
+            ResultGrid.ItemsSource = parser.StartParsing().Result;
         }
     }
 }
