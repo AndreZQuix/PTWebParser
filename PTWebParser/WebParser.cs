@@ -72,7 +72,8 @@ namespace PTWebParser
                 SetFileStartPosition(ref sr);
                 while(sr.Peek() != -1 && Count < endID)
                 {
-                    
+                    IProduct product = new Product();
+
                 }
             }
             else
