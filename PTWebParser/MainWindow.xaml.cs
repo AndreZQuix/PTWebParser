@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace PTWebParser
 {
@@ -22,6 +17,8 @@ namespace PTWebParser
         private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
         {
             ResultGrid.ItemsSource = parser.StartParsing().Result;
+            MessageBox.Show("Процедура парсинга закончена, таблица выведена. Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
+            StartParsingBtn.IsEnabled = false;
         }
     }
 }

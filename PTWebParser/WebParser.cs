@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace PTWebParser
 {
@@ -121,7 +121,7 @@ namespace PTWebParser
             }
         }
 
-        public async Task<List<IProduct>> StartParsing()
+        public List<IProduct> StartParsing()
         {
             if (IsFileCorrect())
             {
@@ -136,9 +136,9 @@ namespace PTWebParser
 
                     Random rnd = new Random();
                     driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    //await Task.Delay(rnd.Next(2000, 5000)); // set random delay to avoid ban and jeopardy of possible DDOS
+                    Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
                     TryToParse(ref driver, ref product);
-                    //await Task.Delay(rnd.Next(3000, 8000));
+                    Thread.Sleep(1000);
                     Count++;
                 }
                 driver.Quit();
