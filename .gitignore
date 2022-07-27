@@ -1,6 +1,4 @@
-/Docs/*.csv
-/Docs/*.txt
-/Docs/*.ini
+Docs/*
 
 # User-specific files
 *.rsuser
