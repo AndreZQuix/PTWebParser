@@ -13,7 +13,7 @@ namespace PTWebParser
         public List<IProduct> StartParsing();
         public void GetObjectPropertiesFromTXT(ref StreamReader sr, ref IProduct pr);
         public void GetObjectPropertiesFromCSV(ref StreamReader sr, ref IProduct pr, ref string line);
-        public void UpdateCounter();
+        public void UpdateConfig(bool isEndOfFile);
         public void TryToParse(ref IWebDriver driver, ref IProduct pr);
 
     }

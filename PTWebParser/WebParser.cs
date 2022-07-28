@@ -43,7 +43,15 @@ namespace PTWebParser
                         AmountOfFiles = Convert.ToInt32(line.Replace("AmountOfFiles:", ""));
 
                     if (line.Contains("Nomenclature:"))
+                    {
                         ParsedFile = line.Replace("Nomenclature:", "");
+                        if (ParsedFile.Length == 0)
+                        {
+                            MessageBox.Show("Загрузите номенклатуру");
+                            // add file browser
+                            // get file name, add it to config
+                        }
+                    }
 
                     if (line.Contains("TitleSelector:"))
                         SelectorTitle = line.Replace("TitleSelector:", "");
@@ -113,12 +121,17 @@ namespace PTWebParser
             line = sr.ReadLine();
         }
 
-        public void UpdateCounter()
+        public void UpdateConfig(bool isEndOfFile)
         {
             string file = DocFolderPath + "config.ini";
             string text = File.ReadAllText(file);
             text = text.Replace(TextToReplace, "Counter:" + Counter);
-            File.WriteAllText(file, text);
+            if(isEndOfFile)
+            {
+                string strToReplace = text.Substring(0, Math.Max(text.IndexOf('\n'), 0));
+                text = text.Replace(strToReplace, "Nomenclature:");
+            }
+            File.WriteAllText(file, text);    
         }
 
         public void TryToParse(ref IWebDriver driver, ref IProduct pr)
@@ -168,12 +181,13 @@ namespace PTWebParser
                     Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
                     TryToParse(ref driver, ref product);
                     Thread.Sleep(1000);
-                    products.Add(product);
+                    
                     Counter++;
                 }
+                bool isEndOfFile = sr.Peek() == -1;
                 driver.Quit();
                 sr.Close();
-                UpdateCounter();
+                UpdateConfig(isEndOfFile);
             }
             else
             {
