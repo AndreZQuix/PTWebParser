@@ -48,6 +48,7 @@ namespace PTWebParser
                         if (ParsedFile.Length == 0)
                         {
                             MessageBox.Show("Загрузите номенклатуру");
+                            
                             // add file browser
                             // get file name, add it to config
                         }
@@ -73,7 +74,7 @@ namespace PTWebParser
                 && !string.IsNullOrEmpty(SelectorTitle) && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
-        public void GetObjectPropertiesFromTXT(ref StreamReader sr, ref IProduct pr)
+        public void GetObjectPropertiesFromTXT(ref StreamReader sr, ref IProduct pr) // for C++ module 
         {
             string line;
             while(!string.IsNullOrWhiteSpace(line = sr.ReadLine()))
@@ -92,7 +93,7 @@ namespace PTWebParser
             }
         }
 
-        private void ParseVendorCode(ref IProduct pr)
+        private void ParseVendorCode(ref IProduct pr) // parse vendor code from name
         {
             pr.VendorCode = "Hello world";
         }
@@ -101,7 +102,7 @@ namespace PTWebParser
             return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
-        public void GetObjectPropertiesFromCSV(ref StreamReader sr, ref IProduct pr, ref string line)
+        public void GetObjectPropertiesFromCSV(ref StreamReader sr, ref IProduct pr, ref string line) // get product data from original CSV file
         {
             string[] lines = line.Split('|');
             pr.ID = Convert.ToInt32(lines[0]);
@@ -126,9 +127,9 @@ namespace PTWebParser
             string file = DocFolderPath + "config.ini";
             string text = File.ReadAllText(file);
             text = text.Replace(TextToReplace, "Counter:" + Counter);
-            if(isEndOfFile)
+            if(isEndOfFile) // if EOF...
             {
-                string strToReplace = text.Substring(0, Math.Max(text.IndexOf('\n'), 0));
+                string strToReplace = text.Substring(0, Math.Max(text.IndexOf('\n'), 0));   // remove name of CSV file from config
                 text = text.Replace(strToReplace, "Nomenclature:");
             }
             File.WriteAllText(file, text);    
@@ -181,7 +182,7 @@ namespace PTWebParser
                     Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
                     TryToParse(ref driver, ref product);
                     Thread.Sleep(1000);
-                    
+                    //products.Add(product); // debug
                     Counter++;
                 }
                 bool isEndOfFile = sr.Peek() == -1;

@@ -18,7 +18,7 @@ namespace PTWebParser
         private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
         {
             ResultGrid.ItemsSource = parser.StartParsing();
-            MessageBox.Show("Процедура парсинга закончена, таблица выведена. Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
+            MessageBox.Show("Процедура парсинга закончена, таблица выведена (при условии корректности данных). Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
             StartParsingBtn.IsEnabled = false;
         }
 
