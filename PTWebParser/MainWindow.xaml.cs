@@ -6,6 +6,7 @@ namespace PTWebParser
     public partial class MainWindow : Window
     {
         private IWebParser parser;
+        private string FilePath = string.Empty;
 
         public MainWindow()
         {
@@ -17,7 +18,7 @@ namespace PTWebParser
 
         private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
         {
-            ResultGrid.ItemsSource = parser.StartParsing();
+            ResultGrid.ItemsSource = parser.StartParsing(FilePath);
             MessageBox.Show("Процедура парсинга закончена, таблица выведена (при условии корректности данных). Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
             StartParsingBtn.IsEnabled = false;
         }
@@ -26,7 +27,11 @@ namespace PTWebParser
         {
             OpenFileDialog OpenFileDialog = new OpenFileDialog();
             OpenFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            bool? Result = OpenFileDialog.ShowDialog();
+            if(OpenFileDialog.ShowDialog() == true)
+            {
+                FilePath = OpenFileDialog.FileName;
+                MessageBox.Show(FilePath);
+            }
         }
     }
 }

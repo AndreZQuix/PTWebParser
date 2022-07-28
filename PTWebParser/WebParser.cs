@@ -13,7 +13,7 @@ namespace PTWebParser
         List<IProduct> products = new List<IProduct>();
 
         public string DocFolderPath = "../../../../Docs/";
-        public static int AmountOfFiles = 10; // amount of files to parse at one iteration
+        public static int AmountOfFiles = 10;
         public static int Counter = 1;
 
         private string ParsedLink = String.Empty;
@@ -46,12 +46,7 @@ namespace PTWebParser
                     {
                         ParsedFile = line.Replace("Nomenclature:", "");
                         if (ParsedFile.Length == 0)
-                        {
                             MessageBox.Show("Загрузите номенклатуру");
-                            
-                            // add file browser
-                            // get file name, add it to config
-                        }
                     }
 
                     if (line.Contains("TitleSelector:"))
@@ -70,8 +65,8 @@ namespace PTWebParser
 
         public bool IsFileCorrect()
         {
-            return !string.IsNullOrEmpty(TextToReplace) && !string.IsNullOrEmpty(ParsedLink) && !string.IsNullOrEmpty(ParsedFile)
-                && !string.IsNullOrEmpty(SelectorTitle) && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
+            return !string.IsNullOrEmpty(TextToReplace) && !string.IsNullOrEmpty(ParsedLink) && !string.IsNullOrEmpty(SelectorTitle) 
+                && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
         public void GetObjectPropertiesFromTXT(ref StreamReader sr, ref IProduct pr) // for C++ module 
@@ -126,12 +121,17 @@ namespace PTWebParser
         {
             string file = DocFolderPath + "config.ini";
             string text = File.ReadAllText(file);
-            text = text.Replace(TextToReplace, "Counter:" + Counter);
-            if(isEndOfFile) // if EOF...
+            string NomenclatureString = text.Substring(0, Math.Max(text.IndexOf('\n'), 0)); // find the string with parsed file name
+            if (isEndOfFile) // ...if EOF
             {
-                string strToReplace = text.Substring(0, Math.Max(text.IndexOf('\n'), 0));   // remove name of CSV file from config
-                text = text.Replace(strToReplace, "Nomenclature:");
+                text = text.Replace(NomenclatureString, "Nomenclature:");    // ...remove name of CSV file from config
+                Counter = 1;
             }
+            else
+            {
+                text = text.Replace(NomenclatureString, "Nomenclature:" + ParsedFile); // ...else replace it with current parsed file name
+            }
+            text = text.Replace(TextToReplace, "Counter:" + Counter);
             File.WriteAllText(file, text);    
         }
 
@@ -164,12 +164,16 @@ namespace PTWebParser
             }
         }
 
-        public List<IProduct> StartParsing()
+        public List<IProduct> StartParsing(string FileFromDialog)
         {
             if (IsFileCorrect())
             {
                 IWebDriver driver = new ChromeDriver();
-                StreamReader sr = new StreamReader(DocFolderPath + ParsedFile);
+
+                if (FileFromDialog.Length > 0)
+                    ParsedFile = FileFromDialog;
+
+                StreamReader sr = new StreamReader(ParsedFile);
                 int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration
                 string currentLine = SetFileStartPosition(ref sr);
                 while(sr.Peek() != -1 && Counter <= endID)
@@ -177,12 +181,12 @@ namespace PTWebParser
                     IProduct product = new Product();
                     GetObjectPropertiesFromCSV(ref sr, ref product, ref currentLine);
 
-                    Random rnd = new Random();
-                    driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
-                    TryToParse(ref driver, ref product);
-                    Thread.Sleep(1000);
-                    //products.Add(product); // debug
+                    //Random rnd = new Random();
+                    //driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
+                    //Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
+                    //TryToParse(ref driver, ref product);
+                    //Thread.Sleep(1000);
+                    products.Add(product); // debug
                     Counter++;
                 }
                 bool isEndOfFile = sr.Peek() == -1;
