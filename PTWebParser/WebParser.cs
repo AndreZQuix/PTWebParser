@@ -97,7 +97,7 @@ namespace PTWebParser
             return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
-        public void GetObjectPropertiesFromCSV(ref StreamReader sr, ref IProduct pr, ref string line) // get product data from original CSV file
+        public void GetObjectPropertiesFromCSV(ref IProduct pr, ref string line) // get product data from original CSV file
         {
             string[] lines = line.Split('|');
             pr.ID = Convert.ToInt32(lines[0]);
@@ -113,8 +113,6 @@ namespace PTWebParser
                 lines[3] = RemoveWhitespace(lines[3]);
                 pr.Price = Convert.ToDouble(lines[3]);
             }
-
-            line = sr.ReadLine();
         }
 
         public void UpdateConfig(bool isEndOfFile)
@@ -176,17 +174,16 @@ namespace PTWebParser
                 StreamReader sr = new StreamReader(ParsedFile);
                 int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration (ending ID)
                 string currentLine = SetFileStartPosition(ref sr);
-                while(sr.Peek() != -1 && Counter <= endID)
+                while((currentLine = sr.ReadLine()) != null && Counter < endID)
                 {
                     IProduct product = new Product();
-                    GetObjectPropertiesFromCSV(ref sr, ref product, ref currentLine);
-
-                    //Random rnd = new Random();
-                    //driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    //Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
-                    //TryToParse(ref driver, ref product);
-                    //Thread.Sleep(1000);
-                    products.Add(product); // debug
+                    GetObjectPropertiesFromCSV(ref product, ref currentLine);
+                    Random rnd = new Random();
+                    driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
+                    Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
+                    TryToParse(ref driver, ref product);
+                    Thread.Sleep(1000);
+                    //products.Add(product); // debug
                     Counter++;
                 }
                 bool isEndOfFile = sr.Peek() == -1;
