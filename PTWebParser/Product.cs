@@ -16,5 +16,17 @@ namespace PTWebParser
         public double OthPrice { get; set; }
         public double PriceDiff { get; set; }
         public bool IsPriceLess { get; set; }
+
+        public Product()
+        {
+            Name = String.Empty;
+            Price = 0;
+            CompCode = String.Empty;
+            VendorCode = String.Empty;
+            OthName = String.Empty;
+            OthPrice = 0;
+            PriceDiff = 0;
+            IsPriceLess = false;
+        }
     }
 }
