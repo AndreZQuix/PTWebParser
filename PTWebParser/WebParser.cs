@@ -174,7 +174,7 @@ namespace PTWebParser
                     ParsedFile = FileFromDialog;
 
                 StreamReader sr = new StreamReader(ParsedFile);
-                int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration
+                int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration (ending ID)
                 string currentLine = SetFileStartPosition(ref sr);
                 while(sr.Peek() != -1 && Counter <= endID)
                 {

@@ -30,7 +30,7 @@ namespace PTWebParser
             if(OpenFileDialog.ShowDialog() == true)
             {
                 FilePath = OpenFileDialog.FileName;
-                MessageBox.Show(FilePath);
+                FileBrowser.Text = FilePath;
             }
         }
     }
