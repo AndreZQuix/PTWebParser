@@ -3,6 +3,7 @@ namespace PTWebParser
 {
     public interface IProduct
     {
+        int ID { get; set; }
         string Name { get; set; }
         double Price { get; set; }
         string CompCode { get; set; }

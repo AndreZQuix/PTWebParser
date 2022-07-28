@@ -14,7 +14,7 @@ namespace PTWebParser
 
         public string DocFolderPath = "../../../../Docs/";
         public static int AmountOfFiles = 10; // amount of files to parse at one iteration
-        public static int Count = 0;
+        public static int Counter = 1;
 
         private string ParsedLink = String.Empty;
         private string ParsedFile = String.Empty;
@@ -33,17 +33,17 @@ namespace PTWebParser
                     if (line.Contains("ParsedLink:"))
                         ParsedLink = line.Replace("ParsedLink:", "");
 
-                    if(line.Contains("Count:"))
+                    if(line.Contains("Counter:"))
                     {
                         TextToReplace = line;
-                        Count = Convert.ToInt32(line.Replace("Count:", ""));
+                        Counter = Convert.ToInt32(line.Replace("Counter:", ""));
                     }
 
                     if (line.Contains("AmountOfFiles:"))
                         AmountOfFiles = Convert.ToInt32(line.Replace("AmountOfFiles:", ""));
 
-                    if (line.Contains("VendorCodes:"))
-                        ParsedFile = line.Replace("VendorCodes:", "");
+                    if (line.Contains("Nomenclature:"))
+                        ParsedFile = line.Replace("Nomenclature:", "");
 
                     if (line.Contains("TitleSelector:"))
                         SelectorTitle = line.Replace("TitleSelector:", "");
@@ -65,7 +65,7 @@ namespace PTWebParser
                 && !string.IsNullOrEmpty(SelectorTitle) && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
-        public void GetObjectProperties(ref StreamReader sr, ref IProduct pr)
+        public void GetObjectPropertiesFromTXT(ref StreamReader sr, ref IProduct pr)
         {
             string line;
             while(!string.IsNullOrWhiteSpace(line = sr.ReadLine()))
@@ -84,11 +84,40 @@ namespace PTWebParser
             }
         }
 
+        private void ParseVendorCode(ref IProduct pr)
+        {
+            pr.VendorCode = "Hello world";
+        }
+        private string RemoveWhitespace(string str)
+        {
+            return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        public void GetObjectPropertiesFromCSV(ref StreamReader sr, ref IProduct pr, ref string line)
+        {
+            string[] lines = line.Split('|');
+            pr.ID = Convert.ToInt32(lines[0]);
+            pr.Name = lines[1];
+
+            if(lines[2].Length > 0)
+                pr.CompCode = lines[2];
+
+            ParseVendorCode(ref pr);
+
+            if (lines[3].Length > 0)
+            {
+                lines[3] = RemoveWhitespace(lines[3]);
+                pr.Price = Convert.ToDouble(lines[3]);
+            }
+
+            line = sr.ReadLine();
+        }
+
         public void UpdateCounter()
         {
             string file = DocFolderPath + "config.ini";
             string text = File.ReadAllText(file);
-            text = text.Replace(TextToReplace, "Count:" + Count);
+            text = text.Replace(TextToReplace, "Counter:" + Counter);
             File.WriteAllText(file, text);
         }
 
@@ -127,21 +156,23 @@ namespace PTWebParser
             {
                 IWebDriver driver = new ChromeDriver();
                 StreamReader sr = new StreamReader(DocFolderPath + ParsedFile);
-                int endID = Count + AmountOfFiles; // calculate the end of parsing iteration
-                SetFileStartPosition(ref sr);
-                while(sr.Peek() != -1 && Count < endID)
+                int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration
+                string currentLine = SetFileStartPosition(ref sr);
+                while(sr.Peek() != -1 && Counter <= endID)
                 {
                     IProduct product = new Product();
-                    GetObjectProperties(ref sr, ref product);
+                    GetObjectPropertiesFromCSV(ref sr, ref product, ref currentLine);
 
                     Random rnd = new Random();
                     driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
                     Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
                     TryToParse(ref driver, ref product);
                     Thread.Sleep(1000);
-                    Count++;
+                    products.Add(product);
+                    Counter++;
                 }
                 driver.Quit();
+                sr.Close();
                 UpdateCounter();
             }
             else
@@ -152,21 +183,23 @@ namespace PTWebParser
             return products;
         }
 
-        private void SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)
+        private string SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)
         {
-            string lineID = "ID:" + Convert.ToString(Count);
-            string line;
+            string lineID = Convert.ToString(Counter);
+            string line = String.Empty;
             try
             {
                 while (sr.Peek() != -1)
                 {
                     line = sr.ReadLine();
-                    if (line.Equals(lineID))
-                        return;
+                    string[] lines = line.Split('|');
+                    if (lines[0].Equals(lineID))
+                        return line;
                 }
             }
             catch (Exception ex)
             { MessageBox.Show("Не удалось найти начало файла для текущей итерации: " + ex.Message); }
+            return line;
         }
     }
 }

@@ -8,6 +8,7 @@ namespace PTWebParser
 {
     public class Product : IProduct
     {
+        public int ID { get; set; }
         public string Name { get; set; }
         public double Price { get; set; }
         public string CompCode { get; set; }
@@ -19,6 +20,7 @@ namespace PTWebParser
 
         public Product()
         {
+            ID = 0;
             Name = String.Empty;
             Price = 0;
             CompCode = String.Empty;
