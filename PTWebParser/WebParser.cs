@@ -88,9 +88,32 @@ namespace PTWebParser
             }
         }
 
+        private bool IsVendorCodeChar(char c)
+        {
+            string vendorCodeChars = "~;/?:x-№(),.=";
+            return (!char.IsLetterOrDigit(c) || vendorCodeChars.Contains(c));
+        }
+
         private void ParseVendorCode(ref IProduct pr) // parse vendor code from name
         {
+            //for(int i = 0; i < pr.Name.Length - 1; i++)
+            //{
+            //    if ((char.IsUpper(pr.Name[i]) || char.IsDigit(pr.Name[i]))
+            //        && (char.IsUpper(pr.Name[i + 1]) || char.IsDigit(pr.Name[i + 1]) || IsVendorCodeChar(pr.Name[i + 1])))
+            //    {
+            //        for(int k = i; k < pr.Name.Length; k++)
+            //        {
+            //            if (!char.IsWhiteSpace(pr.Name[k]))
+            //            {
+            //                pr.VendorCode += pr.Name[k];
+            //            }
+            //        }
+            //        break;
+            //    }
+            //}
+
             pr.VendorCode = "Hello world";
+            pr.OthName = pr.VendorCode;
         }
         private string RemoveWhitespace(string str)
         {
@@ -169,7 +192,10 @@ namespace PTWebParser
                 IWebDriver driver = new ChromeDriver();
 
                 if (FileFromDialog.Length > 0)
+                {
                     ParsedFile = FileFromDialog;
+                    Counter = 1;
+                }
 
                 StreamReader sr = new StreamReader(ParsedFile);
                 int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration (ending ID)
