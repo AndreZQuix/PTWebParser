@@ -5,6 +5,8 @@ using System.Windows;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System.Threading;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace PTWebParser
 {
@@ -12,7 +14,8 @@ namespace PTWebParser
     {
         List<IProduct> products = new List<IProduct>();
 
-        public string DocFolderPath = "../../../../Docs/";
+        //public string DocFolderPath = "../../../../Docs/";
+        public string DocFolderPath = "G:/VS/PTWebParser/Docs/";
         public static int AmountOfFiles = 10;
         public static int Counter = 1;
 
@@ -88,31 +91,12 @@ namespace PTWebParser
             }
         }
 
-        private bool IsVendorCodeChar(char c)
-        {
-            string vendorCodeChars = "~;/?:x-№(),.=";
-            return (!char.IsLetterOrDigit(c) || vendorCodeChars.Contains(c));
-        }
-
+        [DllImport("VendorCodeParser.dll", EntryPoint = "ParseVendorCode", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.BStr)]
+        public static extern string ParseVendorCode(string str);
         private void ParseVendorCode(ref IProduct pr) // parse vendor code from name
         {
-            //for(int i = 0; i < pr.Name.Length - 1; i++)
-            //{
-            //    if ((char.IsUpper(pr.Name[i]) || char.IsDigit(pr.Name[i]))
-            //        && (char.IsUpper(pr.Name[i + 1]) || char.IsDigit(pr.Name[i + 1]) || IsVendorCodeChar(pr.Name[i + 1])))
-            //    {
-            //        for(int k = i; k < pr.Name.Length; k++)
-            //        {
-            //            if (!char.IsWhiteSpace(pr.Name[k]))
-            //            {
-            //                pr.VendorCode += pr.Name[k];
-            //            }
-            //        }
-            //        break;
-            //    }
-            //}
-
-            pr.VendorCode = "Hello world";
+            pr.VendorCode = ParseVendorCode(pr.Name);
             pr.OthName = pr.VendorCode;
         }
         private string RemoveWhitespace(string str)
@@ -122,7 +106,7 @@ namespace PTWebParser
 
         public void GetObjectPropertiesFromCSV(ref IProduct pr, ref string line) // get product data from original CSV file
         {
-            string[] lines = line.Split('|');
+            string[] lines = line.Replace("\"", "").Split('|');
             pr.ID = Convert.ToInt32(lines[0]);
             pr.Name = lines[1];
 
@@ -131,10 +115,14 @@ namespace PTWebParser
 
             ParseVendorCode(ref pr);
 
-            if (lines[3].Length > 0)
-            {
-                lines[3] = RemoveWhitespace(lines[3]);
+            lines[3] = RemoveWhitespace(lines[3]);
+            if (!String.IsNullOrWhiteSpace(lines[3]))
+            { 
                 pr.Price = Convert.ToDouble(lines[3]);
+            }
+            else
+            {
+                pr.Price = 0;
             }
         }
 
@@ -189,7 +177,7 @@ namespace PTWebParser
         {
             if (IsFileCorrect())
             {
-                IWebDriver driver = new ChromeDriver();
+                //IWebDriver driver = new ChromeDriver();
 
                 if (FileFromDialog.Length > 0)
                 {
@@ -204,16 +192,16 @@ namespace PTWebParser
                 {
                     IProduct product = new Product();
                     GetObjectPropertiesFromCSV(ref product, ref currentLine);
-                    Random rnd = new Random();
-                    driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
-                    TryToParse(ref driver, ref product);
-                    Thread.Sleep(1000);
-                    //products.Add(product); // debug
+                    //Random rnd = new Random();
+                    //driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
+                    //Thread.Sleep(1000); // set random delay to avoid ban and jeopardy of possible DDOS
+                    //TryToParse(ref driver, ref product);
+                    //Thread.Sleep(1000);
+                    products.Add(product); // debug
                     Counter++;
                 }
                 bool isEndOfFile = sr.Peek() == -1;
-                driver.Quit();
+                //driver.Quit();
                 sr.Close();
                 UpdateConfig(isEndOfFile);
             }
