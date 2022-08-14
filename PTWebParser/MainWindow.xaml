@@ -5,32 +5,38 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PTWebParser"
         mc:Ignorable="d"
-        Title="WebParser" Height="800" Width="1300">
-    <Grid>
-        <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Товар" Binding="{Binding Name}"/>
-                <DataGridTextColumn Header="Их название" Binding="{Binding OthName}"/>
-                <DataGridTextColumn Header="Наша цена" Binding="{Binding Price}"/>
-                <DataGridTextColumn Header="Их цена" Binding="{Binding OthPrice}"/>
-                <DataGridTextColumn Header="Разница" Binding="{Binding PriceDiff}"/>
-            </DataGrid.Columns>
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsPriceLess}" Value="True">
-                            <Setter Property="Background" Value="#AFE1AF"/>
-                        </DataTrigger>
+        Title="WebParser" Height="700" Width="850">
+    <Grid HorizontalAlignment="Stretch">
+        <DockPanel LastChildFill="True" Margin="10">
+            <DockPanel LastChildFill="True" Margin="0, 0, 0, 10" DockPanel.Dock="Top" HorizontalAlignment="Center">
+                <TextBox x:Name="FileBrowser" Height="40" Width="600" HorizontalAlignment="Stretch" DockPanel.Dock="Left" BorderBrush="Black" Background="LightGray" Margin="0, 0, 10, 0"/>
+                <Button x:Name="FileBrowserBtn" Content="Browse" TextBlock.FontSize="20" Height="40" Width="200" Background="LightGray" Click="FileBrowserBtn_Click" DockPanel.Dock="Left"/>
+            </DockPanel>
+            
+            <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="#FFBCFFCC" Click="StartParsingBtn_Click" DockPanel.Dock="Bottom" Margin="0, 10, 0, 0"/>
+            
+            <DataGrid x:Name="ResultGrid" AutoGenerateColumns="False" IsReadOnly="True" DockPanel.Dock="Bottom" ColumnWidth="*">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Товар" Binding="{Binding Name}"/>
+                    <DataGridTextColumn Header="Их название" Binding="{Binding OthName}"/>
+                    <DataGridTextColumn Header="Наша цена" Binding="{Binding Price}"/>
+                    <DataGridTextColumn Header="Их цена" Binding="{Binding OthPrice}"/>
+                    <DataGridTextColumn Header="Разница" Binding="{Binding PriceDiff}"/>
+                </DataGrid.Columns>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPriceLess}" Value="True">
+                                <Setter Property="Background" Value="#AFE1AF"/>
+                            </DataTrigger>
 
-                        <DataTrigger Binding="{Binding IsPriceLess}" Value="False">
-                            <Setter Property="Background" Value="#FAA0A0"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.CellStyle>
-        </DataGrid>
-        <TextBox x:Name="FileBrowser" Height="40" Width="600" Margin="200,400,500,52" BorderBrush="Black" Background="LightGray"/>
-        <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="#FFBCFFCC" Click="StartParsingBtn_Click" Margin="500,582,500,52"/>
-        <Button x:Name="FileBrowserBtn" Content="Browse" TextBlock.FontSize="20" Height="40" Background="LightGray" Click="FileBrowserBtn_Click" Margin="862,546,206,198"/>
+                            <DataTrigger Binding="{Binding IsPriceLess}" Value="False">
+                                <Setter Property="Background" Value="#FAA0A0"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+            </DataGrid>
+        </DockPanel>
     </Grid>
 </Window>
