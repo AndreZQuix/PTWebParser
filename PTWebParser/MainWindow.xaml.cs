@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace PTWebParser
 {
@@ -7,6 +9,8 @@ namespace PTWebParser
     {
         private IWebParser parser;
         private string FilePath = string.Empty;
+
+        public bool IDis { get; private set; }
 
         public MainWindow()
         {
@@ -35,6 +39,22 @@ namespace PTWebParser
             {
                 FilePath = OpenFileDialog.FileName;
                 FileBrowser.Text = FilePath;
+            }
+        }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e)
+        {
+            var destination = ((Hyperlink)e.OriginalSource).NavigateUri;
+
+            using (Process browser = new Process())
+            {
+                browser.StartInfo = new ProcessStartInfo
+                {
+                    FileName = destination.ToString(),
+                    UseShellExecute = true,
+                    ErrorDialog = true
+                };
+                browser.Start();
             }
         }
     }

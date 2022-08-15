@@ -136,7 +136,7 @@ namespace PTWebParser
                         selector[0].Click(); // click it to open the product page
                         pr.OthName = driver.FindElement(By.CssSelector(SelectorName)).GetAttribute(AttributeName); // get the product name
                         pr.OthName = pr.OthName.Trim();
-
+                        pr.URL = driver.Url;
                         string price = driver.FindElement(By.CssSelector(SelectorPrice)).GetAttribute(AttributeName); // get the price
                         pr.OthPrice = Convert.ToDouble(price.Remove(price.Length - 1).Replace(" ", ""));
                         pr.PriceDiff = pr.Price - pr.OthPrice;

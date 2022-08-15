@@ -17,6 +17,7 @@ namespace PTWebParser
         public double OthPrice { get; set; }
         public double PriceDiff { get; set; }
         public bool IsPriceLess { get; set; }
+        public string URL { get; set; }
 
         public Product()
         {
@@ -29,6 +30,7 @@ namespace PTWebParser
             OthPrice = 0;
             PriceDiff = 0;
             IsPriceLess = false;
+            URL = String.Empty;
         }
     }
 }
