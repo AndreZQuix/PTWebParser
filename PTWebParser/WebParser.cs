@@ -71,39 +71,28 @@ namespace PTWebParser
                 && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
-        [DllImport("VendorCodeParser.dll", EntryPoint = "ParseVendorCode", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.BStr)]
-        public static extern string ParseVendorCode(string str);
-        private void ParseVendorCode(ref IProduct pr) // parse vendor code from name
-        {
-            pr.VendorCode = ParseVendorCode(pr.Name);
-            pr.OthName = pr.VendorCode;
-        }
         private string RemoveWhitespace(string str)
         {
             return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
-        public void GetObjectPropertiesFromCSV(ref IProduct pr, ref string line) // get product data from original CSV file
+        [DllImport("VendorCodeParser.dll", EntryPoint = "ParseVendorCode", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+        [return: MarshalAs(UnmanagedType.BStr)]
+        public static extern string ParseVendorCode(string str); // parse vendor code from name
+
+        public bool GetObjectPropertiesFromCSV(ref IProduct pr, ref string line) // get product data from original CSV file
         {
             string[] lines = line.Replace("\"", "").Split('|');
             pr.ID = Convert.ToInt32(lines[0]);
             pr.Name = lines[1];
-
             if(lines[2].Length > 0)
                 pr.CompCode = lines[2];
-
-            ParseVendorCode(ref pr);
-
+            pr.VendorCode = ParseVendorCode(pr.Name);
+            if (pr.VendorCode.Length < 3) 
+                return false;
             lines[3] = RemoveWhitespace(lines[3]);
-            if (!String.IsNullOrWhiteSpace(lines[3]))
-            { 
-                pr.Price = Convert.ToDouble(lines[3]);
-            }
-            else
-            {
-                pr.Price = 0;
-            }
+            pr.Price = String.IsNullOrEmpty(lines[3]) ? 0 : Convert.ToDouble(lines[3]);
+            return true;
         }
 
         public void UpdateConfig(bool isEndOfFile)
@@ -169,7 +158,8 @@ namespace PTWebParser
                 while((currentLine = sr.ReadLine()) != null && Counter < endID)
                 {
                     IProduct product = new Product();
-                    GetObjectPropertiesFromCSV(ref product, ref currentLine);
+                    if (!GetObjectPropertiesFromCSV(ref product, ref currentLine))  // if data from CSV is incorrect, skip the product
+                        continue;
                     Random rnd = new Random();
                     driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
                     Thread.Sleep(rnd.Next(1000, 4000)); // set random delay to avoid ban and jeopardy of possible DDOS

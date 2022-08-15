@@ -24,6 +24,11 @@ namespace PTWebParser
         {
             ResultGrid.ItemsSource = parser.StartParsing(FilePath);
             MessageBox.Show("Процедура парсинга закончена, таблица выведена (при условии корректности данных). Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
+            DisableControls();
+        }
+
+        private void DisableControls()
+        {
             StartParsingBtn.IsEnabled = false;
             StartParsingBtn.Visibility = Visibility.Hidden;
             FileBrowserBtn.IsEnabled = false;
