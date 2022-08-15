@@ -17,7 +17,16 @@ namespace PTWebParser
             InitializeComponent();
 
             parser = new WebParser();
-            parser.InitializeProperties();
+            bool res = parser.InitializeProperties();
+            if (res)
+            {
+                FileBrowserBtn.IsEnabled = false;
+                FileBrowserBtn.Visibility = Visibility.Hidden;
+                FileBrowser.IsEnabled = false;
+                FileBrowser.Visibility = Visibility.Hidden;
+            }
+            else
+            { MessageBox.Show("Загрузите номенклатуру"); }
         }
 
         private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
@@ -33,6 +42,7 @@ namespace PTWebParser
             StartParsingBtn.Visibility = Visibility.Hidden;
             FileBrowserBtn.IsEnabled = false;
             FileBrowserBtn.Visibility = Visibility.Hidden;
+            FileBrowser.IsEnabled = false;
             FileBrowser.Visibility = Visibility.Hidden;
         }
 

@@ -26,8 +26,9 @@ namespace PTWebParser
         private string AttributeName = "textContent";   // attribute name to get from CSS selector
         private string TextToReplace = String.Empty;
 
-        public void InitializeProperties() // read config and get parsing values
+        public bool InitializeProperties() // read config and get parsing values
         {
+            bool isNomenLoaded = false;
             try
             {
                 foreach(string line in File.ReadAllLines(DocFolderPath + "config.ini"))
@@ -47,8 +48,7 @@ namespace PTWebParser
                     if (line.Contains("Nomenclature:"))
                     {
                         ParsedFile = line.Replace("Nomenclature:", "");
-                        if (ParsedFile.Length == 0)
-                            MessageBox.Show("Загрузите номенклатуру");
+                        isNomenLoaded = ParsedFile.Length != 0;
                     }
 
                     if (line.Contains("TitleSelector:"))
@@ -63,6 +63,8 @@ namespace PTWebParser
             }
             catch(Exception ex)
                 { MessageBox.Show("Невозможно открыть config.ini: " + ex.Message);   }
+
+            return isNomenLoaded;
         }
 
         public bool IsFileCorrect()
@@ -133,7 +135,7 @@ namespace PTWebParser
                             pr.IsPriceLess = true;
                         products.Add(pr);
                     }
-                    catch (Exception ex) { }
+                    catch { }
                 }
             }
             catch (Exception ex)
@@ -155,18 +157,22 @@ namespace PTWebParser
                 StreamReader sr = new StreamReader(ParsedFile);
                 int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration (ending ID)
                 string currentLine = SetFileStartPosition(ref sr);
-                while((currentLine = sr.ReadLine()) != null && Counter < endID)
+                try
                 {
-                    IProduct product = new Product();
-                    if (!GetObjectPropertiesFromCSV(ref product, ref currentLine))  // if data from CSV is incorrect, skip the product
-                        continue;
-                    Random rnd = new Random();
-                    driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
-                    Thread.Sleep(rnd.Next(1000, 4000)); // set random delay to avoid ban and jeopardy of possible DDOS
-                    TryToParse(ref driver, ref product);
-                    Thread.Sleep(rnd.Next(2000, 5000));
-                    Counter++;
+                    while ((currentLine = sr.ReadLine()) != null && Counter < endID)
+                    {
+                        IProduct product = new Product();
+                        if (!GetObjectPropertiesFromCSV(ref product, ref currentLine))  // if data from CSV is incorrect, skip the product
+                            continue;
+                        Random rnd = new Random();
+                        driver.Navigate().GoToUrl(ParsedLink + product.VendorCode); // this parser uses a searching link
+                        Thread.Sleep(rnd.Next(1000, 4000)); // set random delay to avoid ban and jeopardy of possible DDOS
+                        TryToParse(ref driver, ref product);
+                        Thread.Sleep(rnd.Next(2000, 5000));
+                        Counter++;
+                    }
                 }
+                catch { }
                 bool isEndOfFile = sr.Peek() == -1;
                 driver.Quit();
                 sr.Close();

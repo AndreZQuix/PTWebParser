@@ -40,6 +40,10 @@
                             <DataTrigger Binding="{Binding IsPriceLess}" Value="False">
                                 <Setter Property="Background" Value="#FAA0A0"/>
                             </DataTrigger>
+
+                            <Trigger Property="DataGridCell.IsSelected" Value="True">
+                                <Setter Property="Background" Value="#3297FD" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.CellStyle>

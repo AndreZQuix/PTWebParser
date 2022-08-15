@@ -10,7 +10,7 @@ namespace PTWebParser
         public static int AmountOfFiles = 10; // amount of files to parse at one iteration
         public static int Counter = 1;
 
-        public void InitializeProperties();
+        public bool InitializeProperties();
         public bool IsFileCorrect();
         public List<IProduct> StartParsing(string File);
         public bool GetObjectPropertiesFromCSV(ref IProduct pr, ref string line);
