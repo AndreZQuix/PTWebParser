@@ -126,31 +126,29 @@ namespace PTWebParser
 
         public void TryToParse(ref IWebDriver driver, ref IProduct pr)
         {
-            var selector = driver.FindElements(By.ClassName(SelectorTitle)); // try to find the specific product tag (tag that contains product name)
-            if(selector.Count != 0) // if this tag exists, then possibly the right product we are looking for exists
+            try
             {
-                selector[0].Click(); // click it to open the product page
-                try
+                var selector = driver.FindElements(By.ClassName(SelectorTitle)); // try to find the specific product tag (tag that contains product name)
+                if (selector.Count != 0) // if this tag exists, then possibly the right product we are looking for exists
                 {
-                    pr.OthName = driver.FindElement(By.CssSelector(SelectorName)).GetAttribute(AttributeName); // get the product name
-                    pr.OthName = pr.OthName.Trim();
-                }
-                catch (Exception ex)
-                { MessageBox.Show("Ошибка парсинга названия " + pr.VendorCode + ": " + ex.Message); }
+                    try
+                    {
+                        selector[0].Click(); // click it to open the product page
+                        pr.OthName = driver.FindElement(By.CssSelector(SelectorName)).GetAttribute(AttributeName); // get the product name
+                        pr.OthName = pr.OthName.Trim();
 
-                try
-                {
-                    string price = driver.FindElement(By.CssSelector(SelectorPrice)).GetAttribute(AttributeName); // get the price
-                    pr.OthPrice = Convert.ToDouble(price.Remove(price.Length - 1).Replace(" ", ""));
-                    pr.PriceDiff = pr.Price - pr.OthPrice;
-                    if (pr.PriceDiff <= 0) // light red if the other price is less than company price
-                        pr.IsPriceLess = true;
+                        string price = driver.FindElement(By.CssSelector(SelectorPrice)).GetAttribute(AttributeName); // get the price
+                        pr.OthPrice = Convert.ToDouble(price.Remove(price.Length - 1).Replace(" ", ""));
+                        pr.PriceDiff = pr.Price - pr.OthPrice;
+                        if (pr.PriceDiff <= 0) // light red if the other price is less than company price
+                            pr.IsPriceLess = true;
+                        products.Add(pr);
+                    }
+                    catch (Exception ex) { }
                 }
-                catch(Exception ex)
-                { MessageBox.Show("Ошибка парсинга стоимости " + pr.Name + ": " + ex.Message); }
-
-                products.Add(pr);
             }
+            catch (Exception ex)
+            { MessageBox.Show("Ошибка парсинга: " + ex.Message); }
         }
 
         public List<IProduct> StartParsing(string FileFromDialog)
