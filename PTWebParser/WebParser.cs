@@ -14,7 +14,7 @@ namespace PTWebParser
     {
         List<IProduct> products = new List<IProduct>();
 
-        public string DocFolderPath = "../../../../Docs/";
+        public string DocFolderPath = "Docs/";
         public static int AmountOfFiles = 10;
         public static int Counter = 1;
 
@@ -25,10 +25,10 @@ namespace PTWebParser
         private string SelectorPrice = String.Empty; // CSS selector to parse other product price from web page
         private string AttributeName = "textContent";   // attribute name to get from CSS selector
         private string TextToReplace = String.Empty;
+        private bool IsNomenLoaded = false;
 
         public bool InitializeProperties() // read config and get parsing values
         {
-            bool isNomenLoaded = false;
             try
             {
                 foreach(string line in File.ReadAllLines(DocFolderPath + "config.ini"))
@@ -48,7 +48,7 @@ namespace PTWebParser
                     if (line.Contains("Nomenclature:"))
                     {
                         ParsedFile = line.Replace("Nomenclature:", "");
-                        isNomenLoaded = ParsedFile.Length != 0;
+                        IsNomenLoaded = ParsedFile.Length != 0;
                     }
 
                     if (line.Contains("TitleSelector:"))
@@ -64,7 +64,7 @@ namespace PTWebParser
             catch(Exception ex)
                 { MessageBox.Show("Невозможно открыть config.ini: " + ex.Message);   }
 
-            return isNomenLoaded;
+            return IsNomenLoaded;
         }
 
         public bool IsFileCorrect()
@@ -84,16 +84,22 @@ namespace PTWebParser
 
         public bool GetObjectPropertiesFromCSV(ref IProduct pr, ref string line) // get product data from original CSV file
         {
-            string[] lines = line.Replace("\"", "").Split('|');
-            pr.ID = Convert.ToInt32(lines[0]);
-            pr.Name = lines[1];
-            if(lines[2].Length > 0)
-                pr.CompCode = lines[2];
-            pr.VendorCode = ParseVendorCode(pr.Name);
-            if (pr.VendorCode.Length < 3) 
-                return false;
-            lines[3] = RemoveWhitespace(lines[3]);
-            pr.Price = String.IsNullOrEmpty(lines[3]) ? 0 : Convert.ToDouble(lines[3]);
+            try
+            {
+                string[] lines = line.Replace("\"", "").Split('|');
+                pr.ID = Convert.ToInt32(lines[0]);
+                pr.Name = lines[1];
+                if (lines[2].Length > 0)
+                    pr.CompCode = lines[2];
+                pr.VendorCode = ParseVendorCode(pr.Name);
+                if (pr.VendorCode.Length < 3)
+                    return false;
+                lines[3] = RemoveWhitespace(lines[3]);
+                pr.Price = String.IsNullOrEmpty(lines[3]) ? 0 : Convert.ToDouble(lines[3]);
+            }
+            catch (Exception ex)
+            { MessageBox.Show("Ошибка DLL: " + ex.Message); }
+
             return true;
         }
 
@@ -108,9 +114,7 @@ namespace PTWebParser
                 Counter = 1;
             }
             else
-            {
-                text = text.Replace(NomenclatureString, "Nomenclature:" + ParsedFile); // ...else replace it with current parsed file name
-            }
+            { text = text.Replace(NomenclatureString, "Nomenclature:" + ParsedFile); } // ...else replace it with current parsed file name
             text = text.Replace(TextToReplace, "Counter:" + Counter);
             File.WriteAllText(file, text);    
         }
@@ -120,7 +124,7 @@ namespace PTWebParser
             try
             {
                 var selector = driver.FindElements(By.ClassName(SelectorTitle)); // try to find the specific product tag (tag that contains product name)
-                if (selector.Count != 0) // if this tag exists, then possibly the right product we are looking for exists
+                if (selector.Count != 0) // if this tag exists, then possibly the product we are looking for exists
                 {
                     try
                     {
@@ -154,7 +158,7 @@ namespace PTWebParser
                     Counter = 1;
                 }
 
-                StreamReader sr = new StreamReader(ParsedFile);
+                StreamReader sr = new StreamReader(ParsedFile, Encoding.UTF8);
                 int endID = Counter + AmountOfFiles; // calculate the end of parsing iteration (ending ID)
                 string currentLine = SetFileStartPosition(ref sr);
                 try

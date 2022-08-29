@@ -10,8 +10,6 @@ namespace PTWebParser
         private IWebParser parser;
         private string FilePath = string.Empty;
 
-        public bool IDis { get; private set; }
-
         public MainWindow()
         {
             InitializeComponent();
