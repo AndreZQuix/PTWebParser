@@ -87,15 +87,14 @@ namespace PTWebParser
             try
             {
                 string[] lines = line.Replace("\"", "").Split('|');
-                pr.ID = Convert.ToInt32(lines[0]);
-                pr.Name = lines[1];
-                if (lines[2].Length > 0)
-                    pr.CompCode = lines[2];
+                pr.Name = lines[0];
+                if (lines[1].Length > 0)
+                    pr.CompCode = lines[1];
                 pr.VendorCode = ParseVendorCode(pr.Name);
                 if (pr.VendorCode.Length < 3)
                     return false;
-                lines[3] = RemoveWhitespace(lines[3]);
-                pr.Price = String.IsNullOrEmpty(lines[3]) ? 0 : Convert.ToDouble(lines[3]);
+                lines[2] = RemoveWhitespace(lines[2]);
+                pr.Price = String.IsNullOrEmpty(lines[2]) ? 0 : Convert.ToDouble(lines[2]);
             }
             catch (Exception ex)
             { MessageBox.Show("Ошибка DLL: " + ex.Message); }
@@ -192,16 +191,16 @@ namespace PTWebParser
 
         private string SetFileStartPosition(ref StreamReader sr)  // find the starting ID (the end of previous iteration)
         {
-            string lineID = Convert.ToString(Counter);
             string line = String.Empty;
             try
             {
+                int index = 0;
                 while (sr.Peek() != -1)
                 {
                     line = sr.ReadLine();
-                    string[] lines = line.Split('|');
-                    if (lines[0].Equals(lineID))
+                    if (index == Counter - 1)
                         return line;
+                    index++;
                 }
             }
             catch (Exception ex)
