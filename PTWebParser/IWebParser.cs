@@ -16,6 +16,5 @@ namespace PTWebParser
         public bool GetObjectPropertiesFromCSV(ref IProduct pr, ref string line);
         public void UpdateConfig(bool isEndOfFile);
         public void TryToParse(ref IWebDriver driver, ref IProduct pr);
-
     }
 }
