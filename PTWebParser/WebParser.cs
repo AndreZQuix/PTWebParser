@@ -24,11 +24,8 @@ namespace PTWebParser
         private string SelectorTitle = String.Empty;
         private string SelectorName = String.Empty; // CSS selector to parse product name from web page
         private string SelectorPrice = String.Empty; // CSS selector to parse other product price from web page
-        private string AttributeName = "textContent";   // attribute name to get from CSS selector
         private string TextToReplace = String.Empty;
         private bool IsNomenLoaded = false;
-
-        private string TempURL = String.Empty;
 
         public bool InitializeProperties() // read config and get parsing values
         {
@@ -96,7 +93,7 @@ namespace PTWebParser
                 pr.VendorCode = ParseVendorCode(pr.Name);
                 lines[2] = RemoveWhitespace(lines[2]);
                 pr.Price = String.IsNullOrEmpty(lines[2]) ? 0 : Convert.ToDouble(lines[2]);
-                if (pr.VendorCode.Length < 3/* || pr.Price == 0*/)
+                if (pr.VendorCode.Length < 3 || pr.Price == 0)
                     return false;
             }
             catch (Exception ex)
@@ -124,19 +121,6 @@ namespace PTWebParser
         private string FindName(ref IWebDriver driver)
         {
             string name = string.Empty;
-            //try
-            //{
-            //    name = driver.FindElement(By.CssSelector(SelectorName)).GetAttribute(AttributeName); // get the product name
-            //}
-            //catch 
-            //{
-            //    try
-            //    {
-            //        name = driver.FindElement(By.Id(SelectorName)).GetAttribute(AttributeName);
-            //    }
-            //    catch { }
-            //}
-
             try
             {
                 name = driver.FindElement(By.XPath(SelectorName)).Text;
@@ -149,19 +133,6 @@ namespace PTWebParser
         private double FindPrice(ref IWebDriver driver)
         {
             string price = string.Empty;
-            //try
-            //{
-            //    price = driver.FindElement(By.CssSelector(SelectorPrice)).GetAttribute(AttributeName); // get the product name
-            //}
-            //catch
-            //{
-            //    try
-            //    {
-            //        price = driver.FindElement(By.CssSelector(SelectorPrice)).Text;
-            //    }
-            //    catch { }
-            //}
-
             try
             {
                 price = driver.FindElement(By.XPath(SelectorPrice)).Text;
@@ -233,7 +204,7 @@ namespace PTWebParser
                 }
                 catch { }
                 bool isEndOfFile = sr.Peek() == -1;
-                driver.Quit();
+                driver.Dispose();
                 sr.Close();
                 UpdateConfig(isEndOfFile);
             }
