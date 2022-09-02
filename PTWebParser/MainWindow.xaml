@@ -9,8 +9,13 @@
     <Grid HorizontalAlignment="Stretch">
         <DockPanel LastChildFill="True" Margin="10">
             <DockPanel LastChildFill="True" Margin="0, 0, 0, 10" DockPanel.Dock="Top" HorizontalAlignment="Center">
+                <TextBox x:Name="SettingsBrowser" Height="20" Width="600" HorizontalAlignment="Stretch" DockPanel.Dock="Left" BorderBrush="Black" Background="LightGray" Margin="0, 0, 10, 0"/>
+                <Button x:Name="SettingsBrowserBtn" Content="Настройки парсера" TextBlock.FontSize="10" Height="20" Width="200" Background="LightGray" Click="SettingsBrowserBtn_Click" DockPanel.Dock="Left"/>
+            </DockPanel>
+            
+            <DockPanel LastChildFill="True" Margin="0, 0, 0, 10" DockPanel.Dock="Top" HorizontalAlignment="Center">
                 <TextBox x:Name="FileBrowser" Height="40" Width="600" HorizontalAlignment="Stretch" DockPanel.Dock="Left" BorderBrush="Black" Background="LightGray" Margin="0, 0, 10, 0"/>
-                <Button x:Name="FileBrowserBtn" Content="Browse" TextBlock.FontSize="20" Height="40" Width="200" Background="LightGray" Click="FileBrowserBtn_Click" DockPanel.Dock="Left"/>
+                <Button x:Name="FileBrowserBtn" Content="Номенклатура" TextBlock.FontSize="20" Height="40" Width="200" Background="LightGray" Click="FileBrowserBtn_Click" DockPanel.Dock="Left"/>
             </DockPanel>
             
             <Button x:Name="StartParsingBtn" Content="Начать парсинг" TextBlock.FontSize="20" Width="200" Height="50" Background="#FFBCFFCC" Click="StartParsingBtn_Click" DockPanel.Dock="Bottom" Margin="0, 10, 0, 0"/>

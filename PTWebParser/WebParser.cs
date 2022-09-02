@@ -4,10 +4,10 @@ using System.IO;
 using System.Windows;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using System.Threading;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Text;
 
 namespace PTWebParser
 {
@@ -21,24 +21,24 @@ namespace PTWebParser
 
         private string ParsedLink = String.Empty;
         private string ParsedFile = String.Empty;
+        private string ParserSettings = String.Empty; // file with parser settings such as selector title, etc.
         private string SelectorTitle = String.Empty;
         private string SelectorName = String.Empty; // CSS selector to parse product name from web page
         private string SelectorPrice = String.Empty; // CSS selector to parse other product price from web page
-        private string TextToReplace = String.Empty;
+        private string ConfigCounterText = String.Empty;
+        private string ConfigSettingsText = String.Empty;
         private bool IsNomenLoaded = false;
+        private bool IsSettingsLoaded = false;
 
-        public bool InitializeProperties() // read config and get parsing values
+        public bool InitializeConfig() // read config and get parsing values
         {
             try
             {
                 foreach(string line in File.ReadAllLines(DocFolderPath + "config.ini"))
                 {
-                    if (line.Contains("ParsedLink:"))
-                        ParsedLink = line.Replace("ParsedLink:", "");
-
                     if(line.Contains("Counter:"))
                     {
-                        TextToReplace = line;
+                        ConfigCounterText = line;
                         Counter = Convert.ToInt32(line.Replace("Counter:", ""));
                     }
 
@@ -51,6 +51,43 @@ namespace PTWebParser
                         IsNomenLoaded = ParsedFile.Length != 0;
                     }
 
+                    if(line.Contains("ParserSettings:"))
+                    {
+                        ConfigSettingsText = line;
+                        ParserSettings = line.Replace("ParserSettings:", "");
+                        IsSettingsLoaded = ParserSettings.Length != 0;
+                        ParserSettings.Insert(0, DocFolderPath);
+                    }
+                }
+            }
+            catch(Exception ex)
+            { MessageBox.Show("Невозможно открыть config.ini: " + ex.Message); }
+
+            return IsNomenLoaded;
+        }
+
+        public bool InitializeSettings(string file)
+        {
+            if (string.IsNullOrEmpty(file))
+            {
+                if (!IsSettingsLoaded)
+                {
+                    MessageBox.Show("Загрузите файл настроек парсинга");
+                    return false;
+                }
+            }
+            else
+            {
+                ParserSettings = file;
+            }
+
+            try
+            {
+                foreach (string line in File.ReadAllLines(ParserSettings))
+                {
+                    if (line.Contains("ParsedLink:"))
+                        ParsedLink = line.Replace("ParsedLink:", "");
+
                     if (line.Contains("TitleSelector:"))
                         SelectorTitle = line.Replace("TitleSelector:", "");
 
@@ -61,15 +98,18 @@ namespace PTWebParser
                         SelectorPrice = line.Replace("PriceSelector:", "");
                 }
             }
-            catch(Exception ex)
-                { MessageBox.Show("Невозможно открыть config.ini: " + ex.Message);   }
+            catch
+            { 
+                MessageBox.Show("Не удается считать настройки парсинга");
+                return false;
+            }
 
-            return IsNomenLoaded;
+            return true;
         }
 
         public bool IsFileCorrect()
         {
-            return !string.IsNullOrEmpty(TextToReplace) && !string.IsNullOrEmpty(ParsedLink) && !string.IsNullOrEmpty(SelectorTitle) 
+            return !string.IsNullOrEmpty(ConfigCounterText) && !string.IsNullOrEmpty(ParsedLink) && !string.IsNullOrEmpty(SelectorTitle) 
                 && !string.IsNullOrEmpty(SelectorPrice) && !string.IsNullOrEmpty(SelectorName);
         }
 
@@ -109,12 +149,17 @@ namespace PTWebParser
             string NomenclatureString = text.Substring(0, Math.Max(text.IndexOf('\n'), 0)); // find the string with parsed file name
             if (isEndOfFile) // ...if EOF
             {
-                text = text.Replace(NomenclatureString, "Nomenclature:");    // ...remove name of CSV file from config
+                text = text.Replace(NomenclatureString, "Nomenclature:");    // ...remove name of CSV file and parser settings from config
+                text = text.Replace(ConfigSettingsText, "ParserSettings:");
                 Counter = 1;
             }
             else
-            { text = text.Replace(NomenclatureString, "Nomenclature:" + ParsedFile); } // ...else replace it with current parsed file name
-            text = text.Replace(TextToReplace, "Counter:" + Counter);
+            { 
+                text = text.Replace(NomenclatureString, "Nomenclature:" + ParsedFile); // ...else replace it with current parsed file name and settings
+                text = text.Replace(ConfigSettingsText, "ParserSettings:" + ParserSettings);
+            }
+            
+            text = text.Replace(ConfigCounterText, "Counter:" + Counter);
             File.WriteAllText(file, text);    
         }
 
@@ -171,15 +216,15 @@ namespace PTWebParser
 
         }
 
-        public List<IProduct> StartParsing(string FileFromDialog)
+        public List<IProduct> StartParsing(string file, string settings)
         {
-            if (IsFileCorrect())
+            if (IsFileCorrect() && InitializeSettings(settings))
             {
                 IWebDriver driver = new ChromeDriver();
 
-                if (FileFromDialog.Length > 0)
+                if (file.Length > 0)
                 {
-                    ParsedFile = FileFromDialog;
+                    ParsedFile = file;
                     Counter = 1;
                 }
 
@@ -207,10 +252,11 @@ namespace PTWebParser
                 driver.Dispose();
                 sr.Close();
                 UpdateConfig(isEndOfFile);
+                MessageBox.Show("Процедура парсинга закончена, таблица выведена (при условии корректности данных). Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
             }
             else
             {
-                MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini");
+                MessageBox.Show("Номенклатура не получена или некорректно заполнен config.ini или файл настроек парсинга");
             }
 
             return products;

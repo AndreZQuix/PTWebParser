@@ -9,14 +9,15 @@ namespace PTWebParser
     {
         private IWebParser parser;
         private string FilePath = string.Empty;
+        private string SettingsPath = string.Empty;
 
         public MainWindow()
         {
             InitializeComponent();
 
             parser = new WebParser();
-            bool res = parser.InitializeProperties();
-            if (res)
+            bool ret = parser.InitializeConfig(); // return if config and settings exist
+            if (ret)
             {
                 FileBrowserBtn.IsEnabled = false;
                 FileBrowserBtn.Visibility = Visibility.Hidden;
@@ -29,8 +30,7 @@ namespace PTWebParser
 
         private void StartParsingBtn_Click(object sender, RoutedEventArgs e)
         {
-            ResultGrid.ItemsSource = parser.StartParsing(FilePath);
-            MessageBox.Show("Процедура парсинга закончена, таблица выведена (при условии корректности данных). Для запуска следующей процедуры приложение надо обязательно перезагрузить (закрыть-открыть)");
+            ResultGrid.ItemsSource = parser.StartParsing(FilePath, SettingsPath);
             DisableControls();
         }
 
@@ -44,13 +44,24 @@ namespace PTWebParser
             FileBrowser.Visibility = Visibility.Hidden;
         }
 
+        private void SettingsBrowserBtn_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "ini files (*.ini)|*.ini";
+            if(ofd.ShowDialog() == true)
+            {
+                SettingsPath = ofd.FileName;
+                SettingsBrowser.Text = SettingsPath;
+            }
+        }
+
         private void FileBrowserBtn_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog OpenFileDialog = new OpenFileDialog();
-            OpenFileDialog.Filter = "CSV files (*.csv)|*.csv";
-            if(OpenFileDialog.ShowDialog() == true)
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "CSV files (*.csv)|*.csv";
+            if(ofd.ShowDialog() == true)
             {
-                FilePath = OpenFileDialog.FileName;
+                FilePath = ofd.FileName;
                 FileBrowser.Text = FilePath;
             }
         }
